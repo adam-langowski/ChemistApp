@@ -4,33 +4,39 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 
+@st.cache_data
+def load_data(file):
+    df = pd.read_csv(file, sep="\t", engine="python", encoding='cp1250')
+    for col in df.select_dtypes(include="object").columns:
+        df[col] = df[col].str.replace(",", ".", regex=False)
+    df.columns = [col.strip().lower() for col in df.columns]
+    kolumny_liczbowe = ["sigma", "f", "tlife", "temp"]
+    for col in kolumny_liczbowe:
+        df[col] = df[col].astype(float)
+    return df
+
+@st.cache_data
+def fit_linear_model(x, y):
+    model = LinearRegression()
+    model.fit(x, y)
+    return model
+
 st.title("📉 Analiza kinetyki adsorpcji – wyznaczanie współczynników")
 
 uploaded_file = st.file_uploader("Wczytaj plik z danymi (np. .dat lub .txt)", type=["dat", "txt"])
 
 if uploaded_file is not None:
-    # Wczytywanie danych
-    df = pd.read_csv(uploaded_file, sep="\t", engine="python")
-    df = df.applymap(lambda x: str(x).replace(",", ".") if isinstance(x, str) else x)
-    df.columns = [col.strip().lower() for col in df.columns]
-
-    # Konwersja na float
-    kolumny_liczbowe = ["sigma", "f", "tlife", "temp"]
-    for col in kolumny_liczbowe:
-        df[col] = df[col].astype(float)
+    df = load_data(uploaded_file)
 
     if "tlife" not in df.columns or "sigma" not in df.columns:
         st.error("Plik musi zawierać kolumny 'Tlife' i 'sigma'")
     else:
-        # Przekształcenia
         df["sqrt_tlife"] = np.sqrt(df["tlife"])
         df["inv_tlife"] = 1 / df["tlife"]
 
-        # Wyświetlenie tabeli
         st.subheader("📄 Podgląd danych")
         st.dataframe(df[["sigma", "tlife", "sqrt_tlife", "inv_tlife"]].style.format(precision=4))
 
-        # Wybór trybu
         st.subheader("⚙️ Wybierz tryb analizy")
         tryb = st.radio("Tryb przekształcenia osi X:", ("Obszar premicelarny (√Tlife)", "Obszar micelarny (1/Tlife)"))
 
@@ -43,20 +49,15 @@ if uploaded_file is not None:
 
         y = df["sigma"].values
 
-        # Regresja liniowa
-        model = LinearRegression()
-        model.fit(x, y)
+        model = fit_linear_model(x, y)
+        y_pred = model.predict(x)
         a = model.coef_[0]
         b = model.intercept_
-
-        # Przewidywane wartości
-        y_pred = model.predict(x)
 
         st.subheader("📐 Współczynnik kierunkowy (nachylenie)")
         st.write(f"y = **{a:.4f}·x + {b:.4f}**")
         st.write("Ten współczynnik będzie służył do obliczeń dyfuzji i dysocjacji.")
 
-        # Wykres
         fig, ax = plt.subplots()
         ax.scatter(x, y, color="blue", label="Dane eksperymentalne")
         ax.plot(x, y_pred, color="red", label="Dopasowana prosta")
