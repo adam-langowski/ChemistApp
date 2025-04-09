@@ -48,11 +48,17 @@ if uploaded_file is not None:
             st.write(f"**Γ** (adsorpcja): {gamma:.6e} mol/m²")
             st.write(f"**ΔGm** (energia swobodna): {delta_gm:.4f} kJ/mol")
 
-            st.subheader("Sterowanie ręczne (na tym samym wykresie)")
-            a_manual = st.slider("Parametr a", min_value=0.0, max_value=100.0, value=float(a_fit), step=0.1)
-            b_manual = st.slider("Parametr b", min_value=0.0, max_value=5000.0, value=float(b_fit), step=0.1)
-            c0_manual = st.slider("Parametr c₀", min_value=0.0, max_value=100.0, value=float(c0_fit), step=0.1)
+            mode = st.radio("Wybierz sposób dostosowania parametrów:", ["Suwaki", "Wpisz wartości"])
 
+            if mode == "Suwaki":
+                a_manual = st.slider("Parametr a", min_value=0.0, max_value=100.0, value=float(a_fit), step=0.1)
+                b_manual = st.slider("Parametr b", min_value=0.0, max_value=5000.0, value=float(b_fit), step=0.1)
+                c0_manual = st.slider("Parametr c₀", min_value=0.0, max_value=100.0, value=float(c0_fit), step=0.1)
+            else:
+                a_manual = st.number_input("Parametr a", value=float(a_fit), step=0.1, format="%.4f")
+                b_manual = st.number_input("Parametr b", value=float(b_fit), step=1.0, format="%.4f")
+                c0_manual = st.number_input("Parametr c₀", value=float(c0_fit), step=0.1, format="%.4f")
+                
             x_range = np.linspace(min(x_data), max(x_data), 300)
             y_fit = izoterma_model(x_range, a_fit, b_fit, c0_fit)
             y_manual = izoterma_model(x_range, a_manual, b_manual, c0_manual)
