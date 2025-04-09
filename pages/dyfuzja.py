@@ -65,7 +65,6 @@ if uploaded_file is not None:
         ax.legend()
         st.pyplot(fig)
 
-        # Obliczanie współczynnika dyfuzji
         st.subheader("📊 Wyznaczanie współczynnika dyfuzji")
 
         col1, col2, col3 = st.columns(3)
