@@ -3,9 +3,10 @@ import streamlit as st
 st.set_page_config(
     page_title="Aplikacja chemiczna",
     page_icon="🧪",
-    layout="centered"
+    layout="wide"
 )
 
+# pyright: reportUndefinedVariable=false
 st.markdown(f"""
     <style>
     .stApp {{
@@ -36,6 +37,7 @@ st.markdown(f"""
         padding: 2rem;
         box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         margin-bottom: 2rem;
+        text-align: center; /* ← to dodaj */
     }}
 
     /* Styl linków */
@@ -63,10 +65,13 @@ st.markdown('<p class="big-font">Obliczanie adsorpcji i napięcia powierzchniowe
 st.markdown('<p class="sub-font">Wybierz analizę, którą chcesz przeprowadzić</p>', unsafe_allow_html=True)
 
 # Układ w dwóch kolumnach
-col1, col2 = st.columns(2)
+col1, col2, col3= st.columns([1, 1, 1])
 
 with col1:
-    st.header("📉 Kinetyka adsorpcji")
+    st.markdown(
+        '<a href="/dyfuzja" target="_self" style="text-decoration: none;"><h2>📉 Kinetyka adsorpcji</h2></a>',
+        unsafe_allow_html=True
+    )
     st.markdown("Przejdź do strony *Dyfuzja*, gdzie możesz:")
     st.markdown("""
     - Wczytać dane z eksperymentu
@@ -76,7 +81,10 @@ with col1:
     st.page_link("pages/dyfuzja.py", label="🔗 Przejdź do analizy dyfuzji")
 
 with col2:
-    st.header("📈 Izoterma adsorpcji")
+    st.markdown(
+            '<a href="/izoterma" target="_self" style="text-decoration: none;"><h2>📈 Izoterma adsorpcji</h2></a>',
+            unsafe_allow_html=True
+        )    
     st.markdown("Przejdź do strony *Izoterma*, aby:")
     st.markdown("""
     - Dopasować model wykładniczy
@@ -85,7 +93,20 @@ with col2:
     """)
     st.page_link("pages/izoterma.py", label="🔗 Przejdź do analizy izotermy")
 
+with col3:
+    st.markdown(
+            '<a href="/trzeci" target="_self" style="text-decoration: none;"><h2>📈 Do uzupełnienia</h2></a>',
+            unsafe_allow_html=True
+        )    
+    st.markdown("Do uzupełnienia")
+    st.markdown("""
+    - Do uzupełnienia
+    - Do uzupełnienia
+    - Do uzupełnienia
+    """)
+    st.page_link("pages/trzeci.py", label="🔗 Do uzupełnienia")
+
 # Oddzielenie
 st.markdown("---")
-st.info("📌 Aby wrócić do strony głównej z podstron, kliknij logo lub użyj nawigacji po lewej stronie.")
+st.info("📌 Aby wrócić do strony głównej z podstron, użyj nawigacji po lewej stronie.")
 
