@@ -1,11 +1,10 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
 
 @st.cache_data
 def load_data(file):
+    import pandas as pd
+    import numpy as np
+
     df = pd.read_csv(file, sep="\t", engine="python", encoding='cp1250')
     for col in df.select_dtypes(include="object").columns:
         df[col] = df[col].str.replace(",", ".", regex=False)
@@ -13,10 +12,18 @@ def load_data(file):
     kolumny_liczbowe = ["sigma", "f", "tlife", "temp"]
     for col in kolumny_liczbowe:
         df[col] = df[col].astype(float)
+    df["sqrt_tlife"] = np.sqrt(df["tlife"])
+    df["inv_tlife"] = 1 / df["tlife"]
     return df
 
-@st.cache_data
-def fit_linear_model(x, y):
+@st.cache_resource(hash_funcs={bytes: lambda _: hash(_)})
+def fit_linear_model_cached(x_bytes, y_bytes):
+    import numpy as np
+    from sklearn.linear_model import LinearRegression
+
+    x = np.frombuffer(x_bytes).reshape(-1, 1)
+    y = np.frombuffer(y_bytes)
+
     model = LinearRegression()
     model.fit(x, y)
     return model
@@ -31,8 +38,7 @@ if uploaded_file is not None:
     if "tlife" not in df.columns or "sigma" not in df.columns:
         st.error("Plik musi zawierać kolumny 'Tlife' i 'sigma'")
     else:
-        df["sqrt_tlife"] = np.sqrt(df["tlife"])
-        df["inv_tlife"] = 1 / df["tlife"]
+        import numpy as np
 
         st.subheader("📄 Podgląd danych")
         st.dataframe(df[["sigma", "tlife", "sqrt_tlife", "inv_tlife"]].style.format(precision=4))
@@ -49,7 +55,11 @@ if uploaded_file is not None:
 
         y = df["sigma"].values
 
-        model = fit_linear_model(x, y)
+        # Bufory do hashowania
+        x_bytes = x.tobytes()
+        y_bytes = y.tobytes()
+
+        model = fit_linear_model_cached(x_bytes, y_bytes)
         y_pred = model.predict(x)
         a = model.coef_[0]
         b = model.intercept_
@@ -58,13 +68,15 @@ if uploaded_file is not None:
         st.write(f"y = **{a:.4f}·x + {b:.4f}**")
         st.write("Ten współczynnik będzie służył do obliczeń dyfuzji i dysocjacji.")
 
-        fig, ax = plt.subplots()
+        import matplotlib.pyplot as plt
+
+        fig, ax = plt.subplots(figsize=(6, 4), dpi=150)
         ax.scatter(x, y, color="blue", label="Dane eksperymentalne")
         ax.plot(x, y_pred, color="red", label="Dopasowana prosta")
         ax.set_xlabel(x_label)
         ax.set_ylabel("Sigma [mN/m]")
         ax.legend()
-        st.pyplot(fig)
+        st.pyplot(fig, use_container_width=False)
 
         st.subheader("📊 Wyznaczanie współczynnika dyfuzji")
 
