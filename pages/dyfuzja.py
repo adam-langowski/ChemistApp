@@ -46,53 +46,58 @@ if uploaded_file is not None:
         st.subheader("⚙️ Wybierz tryb analizy")
         tryb = st.radio("Tryb przekształcenia osi X:", ("Obszar premicelarny (√Tlife)", "Obszar micelarny (1/Tlife)"))
 
-        if tryb == "Obszar premicelarny (√Tlife)":
-            x = df["sqrt_tlife"].values.reshape(-1, 1)
-            x_label = "√Tlife [√ms]"
-        else:
-            x = df["inv_tlife"].values.reshape(-1, 1)
-            x_label = "1/Tlife [1/ms]"
+    if tryb == "Obszar premicelarny (√Tlife)":
+        x = df["sqrt_tlife"].values.reshape(-1, 1)
+        x_label = "√Tlife [√ms]"
+        plot_title = "Dopasowanie liniowe: sigma vs. √Tlife"
+    else:
+        x = df["inv_tlife"].values.reshape(-1, 1)
+        x_label = "1/Tlife [1/ms]"
+        plot_title = "Dopasowanie liniowe: sigma vs. 1/Tlife"
 
-        y = df["sigma"].values
+    y = df["sigma"].values
 
-        # Bufory do hashowania
-        x_bytes = x.tobytes()
-        y_bytes = y.tobytes()
+    # Bufory do hashowania
+    x_bytes = x.tobytes()
+    y_bytes = y.tobytes()
 
-        model = fit_linear_model_cached(x_bytes, y_bytes)
-        y_pred = model.predict(x)
-        a = model.coef_[0]
-        b = model.intercept_
+    model = fit_linear_model_cached(x_bytes, y_bytes)
+    y_pred = model.predict(x)
+    a = model.coef_[0]
+    b = model.intercept_
 
-        st.subheader("📐 Współczynnik kierunkowy (nachylenie)")
-        st.write(f"y = **{a:.4f}·x + {b:.4f}**")
-        st.write("Ten współczynnik będzie służył do obliczeń dyfuzji i dysocjacji.")
+    st.subheader("📐 Współczynnik kierunkowy (nachylenie)")
+    st.write(f"y = **{a:.4f}·x + {b:.4f}**")
+    st.write("Ten współczynnik będzie służył do obliczeń dyfuzji i dysocjacji.")
 
-        import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt
 
-        fig, ax = plt.subplots(figsize=(6, 4), dpi=150)
-        ax.scatter(x, y, color="blue", label="Dane eksperymentalne")
-        ax.plot(x, y_pred, color="red", label="Dopasowana prosta")
-        ax.set_xlabel(x_label)
-        ax.set_ylabel("Sigma [mN/m]")
-        ax.legend()
-        st.pyplot(fig, use_container_width=False)
+    fig, ax = plt.subplots(figsize=(6, 4), dpi=150)
+    ax.set_title(plot_title, fontsize=10, fontweight='bold')
+    ax.tick_params(axis='both', labelsize=10)
+    ax.scatter(x, y, color="#1f77b4", s=30, label="Dane eksperymentalne")
+    ax.plot(x, y_pred, color="#d62728", linewidth=2, label="Dopasowana prosta")
+    ax.grid(True, linestyle="--", alpha=0.5)
+    ax.set_xlabel(x_label, fontsize=8)
+    ax.set_ylabel("Sigma [mN/m]", fontsize=8)
+    ax.legend(loc="best", fontsize=8, frameon=True)
+    st.pyplot(fig, use_container_width=False)
 
-        st.subheader("📊 Wyznaczanie współczynnika dyfuzji")
+    st.subheader("📊 Wyznaczanie współczynnika dyfuzji")
 
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            n = st.number_input("n (1 = niejonowy, 2 = jonowy)", value=1)
-        with col2:
-            T_celsius = st.number_input("Temperatura [°C]", value=23.1)
-            T = T_celsius + 273.15
-        with col3:
-            c = st.number_input("Stężenie surfaktantu [mol/L]", value=1e-3, format="%.5f")
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        n = st.number_input("n (1 = niejonowy, 2 = jonowy)", value=1)
+    with col2:
+        T_celsius = st.number_input("Temperatura [°C]", value=23.1)
+        T = T_celsius + 273.15
+    with col3:
+        c = st.number_input("Stężenie surfaktantu [mol/L]", value=1e-3, format="%.5f")
 
-        R = 8.314  # J/mol·K
+    R = 8.314  # J/mol·K
 
-        try:
-            D = ((a / (-2 * n * R * T * c)) ** 2) * np.pi
-            st.write(f"**Współczynnik dyfuzji D** = {D:.4e} m²/s")
-        except Exception as e:
-            st.error(f"Nie udało się obliczyć D: {e}")
+    try:
+        D = ((a / (-2 * n * R * T * c)) ** 2) * np.pi
+        st.write(f"**Współczynnik dyfuzji D** = {D:.4e} m²/s")
+    except Exception as e:
+        st.error(f"Nie udało się obliczyć D: {e}")
