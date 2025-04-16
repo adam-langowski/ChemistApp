@@ -35,5 +35,5 @@ hide_console()
 
 print("Aby całkowicie wylaczyc aplikacje, prosze zamknac to okno\n")
 
-subprocess.Popen(["streamlit", "run", "Home.py", "--server.runOnSave=false"])
+subprocess.Popen([sys.executable, "-m", "streamlit", "run", "Home.py", "--server.runOnSave=true"])
 

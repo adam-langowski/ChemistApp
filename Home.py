@@ -64,10 +64,10 @@ st.markdown(f"""
 st.markdown('<p class="big-font">Obliczanie adsorpcji i napięcia powierzchniowego</p>', unsafe_allow_html=True)
 st.markdown('<p class="sub-font">Wybierz analizę, którą chcesz przeprowadzić</p>', unsafe_allow_html=True)
 
-# Układ w dwóch kolumnach
-col1, col2, col3= st.columns([1, 1, 1])
 
-with col1:
+row1_col1, row1_col2 = st.columns(2)
+
+with row1_col1:
     st.markdown(
         '<a href="/dyfuzja" target="_self" style="text-decoration: none;"><h2>📉 Kinetyka adsorpcji</h2></a>',
         unsafe_allow_html=True
@@ -80,7 +80,7 @@ with col1:
     """)
     st.page_link("pages/dyfuzja.py", label="🔗 Przejdź do analizy dyfuzji")
 
-with col2:
+with row1_col2:
     st.markdown(
             '<a href="/izoterma" target="_self" style="text-decoration: none;"><h2>📈 Izoterma adsorpcji</h2></a>',
             unsafe_allow_html=True
@@ -93,18 +93,33 @@ with col2:
     """)
     st.page_link("pages/izoterma.py", label="🔗 Przejdź do analizy izotermy")
 
-with col3:
+row2_col1, row2_col2 = st.columns(2)
+
+with row2_col1:
     st.markdown(
-            '<a href="/trzeci" target="_self" style="text-decoration: none;"><h2>📈 Do uzupełnienia</h2></a>',
-            unsafe_allow_html=True
-        )    
-    st.markdown("Do uzupełnienia")
+        '<a href="/zwilzanie" target="_self" style="text-decoration: none;"><h2>💧 Kąt zwilżania</h2></a>',
+        unsafe_allow_html=True
+    )
+    st.markdown("Przejdź do strony *Zwilżanie*, aby:")
     st.markdown("""
-    - Do uzupełnienia
-    - Do uzupełnienia
-    - Do uzupełnienia
+    - Uzupełnić fizykochemiczne parametry wykorzystywanych materiałów
+    - Wczytać dane z pomiaru masy zwilżanego materiału w czasie
+    - Wyznaczyć kąt zwilżania
     """)
-    st.page_link("pages/trzeci.py", label="🔗 Do uzupełnienia")
+    st.page_link("pages/zwilzanie.py", label="🔗 Przejdź do kąta zwilżania")
+
+
+with row2_col2:
+    st.markdown(
+        '<a href="/energia" target="_self" style="text-decoration: none;"><h2>⚡ Energia powierzchniowa</h2></a>',
+        unsafe_allow_html=True
+    )
+    st.markdown("Przejdź do strony *Energia powierzchniowa*, aby:")
+    st.markdown("""
+    - Wyznaczyć krytyczną energię powierzchniową metodą Zismana
+    - Obliczyć składniki energii (dyspersyjny i polarny) metodą OWRK
+    """)
+    st.page_link("pages/energia.py", label="🔗 Przejdź do obliczeń energii")
 
 # Oddzielenie
 st.markdown("---")
