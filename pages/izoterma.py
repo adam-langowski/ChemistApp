@@ -128,13 +128,13 @@ if uploaded_file is not None:
             if mode == "Suwaki":
                 col1, col2 = st.columns(2)
                 with col1:
-                    B_sz_manual = st.slider("B", 0.01, 1.0, float(B_sz_fit), 0.01)
+                    B_sz_manual = st.slider("B", 0.0001, 1.0, float(B_sz_fit), 0.0001, format="%.4f")
                 with col2:
-                    A_sz_manual_umol = st.slider("A [µmol/L]", 0.1, 10.0, float(A_sz_fit * 1e6), 0.1)
+                    A_sz_manual_umol = st.slider("A", 0.0001, 100.0, float(A_sz_fit * 1e6), 0.0001, format="%.4f")
                     A_sz_manual = A_sz_manual_umol / 1e6  # Konwersja z µmol/L na mol/L
             else:
-                B_sz_manual = st.number_input("B", value=float(B_sz_fit), step=0.01)
-                A_sz_manual_umol = st.number_input("A [µmol/L]", value=float(A_sz_fit * 1e6), step=0.01, format="%.2f")
+                B_sz_manual = st.number_input("B", value=float(B_sz_fit), step=0.0001, format="%.4f")
+                A_sz_manual_umol = st.number_input("A", value=float(A_sz_fit * 1e6), step=0.0001, format="%.4f")
                 A_sz_manual = A_sz_manual_umol / 1e6  # µmol/L → mol/L
 
             # Generowanie wykresu
@@ -152,9 +152,9 @@ if uploaded_file is not None:
             ax.scatter(x_data, y_data, label='Dane eksperymentalne', color='blue', zorder=5)
 
             # Zaznaczenie CMC
-            ax.axvline(cmc, color='purple', linestyle=':', label=f'CMC = {cmc:.4f} mol/L')
+            ax.axvline(cmc, color='purple', linestyle=':', label=f'CMC = {cmc:.6f} mol/L')
             ax.scatter([cmc], [gamma_cmc], color='purple', s=100, zorder=6)
-            ax.axvline(cmc_manual, color='orange', linestyle=':', label=f'CMC (ręczne) = {cmc_manual:.4f} mol/L')
+            ax.axvline(cmc_manual, color='orange', linestyle=':', label=f'CMC (ręczne) = {cmc_manual:.6f} mol/L')
             ax.scatter([cmc_manual], [gamma_cmc_manual], color='orange', s=100, zorder=6)
 
             # Formatowanie wykresu
@@ -165,8 +165,8 @@ if uploaded_file is not None:
             
             # Wyświetlanie równania
             equation_text = (
-                f"$\gamma = {FIXED_Y0} \cdot (1 - {B_sz_fit:.3f} \cdot "
-                f"\ln(\\frac{{c}}{{{A_sz_fit:.4f}}} + 1))$"
+                f"$\gamma = {FIXED_Y0} \cdot (1 - {B_sz_fit:.6f} \cdot "
+                f"\ln(\\frac{{c}}{{{A_sz_fit:.8f}}} + 1))$"
             )
             plt.title(equation_text, fontsize=12, pad=20)
             
