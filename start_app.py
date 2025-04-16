@@ -3,6 +3,7 @@ import sys
 import os
 import pkg_resources
 import ctypes
+import platform
 
 requirements_file = "requirements.txt"
 
@@ -26,7 +27,8 @@ def install_missing_packages():
         subprocess.check_call([sys.executable, "-m", "pip", "install", *missing])
 
 def hide_console():
-    ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
+    if platform.system() == "Windows":
+        ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
 
 if os.path.exists(requirements_file):
     install_missing_packages()
@@ -36,4 +38,3 @@ hide_console()
 print("Aby całkowicie wylaczyc aplikacje, prosze zamknac to okno\n")
 
 subprocess.Popen([sys.executable, "-m", "streamlit", "run", "Home.py", "--server.runOnSave=true"])
-
