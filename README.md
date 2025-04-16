@@ -3,6 +3,25 @@ Bioinformatyka 2025 MGR
 
 # OPIS APLIKACJI
 
+## Instalacja i uruchomienie
+### Informacje
+Aplikacja powstała w środowisku Python i do poprawnego działania wymaga kilku bibliotek:
+- streamlit ( 1.44.1+)
+- numpy (1.26.4+)
+- pandas (2.2.2+)
+- matplotlib (3.9.1+)
+- scipy (1.13.1+)
+
+Aplikacja została stworzona na wersjach zawartych w nawiasach powyżej. Zalecane jest korzystanie z tych lub nowszych wersji. 
+
+### Uruchomienie
+Istnieją trzy sposoby włączenia aplikacji:
+1. [Dostęp online](https://chemist-assist.streamlit.app/) - Aplikacja została zbudowana na bazie biblioteki streamlit co umożliwia hostowanie jej online. Nie wymaga instalowania żadnych bibliotek.
+2. Z użyciem skryptu:
+   1. W pobranym folderze zlokalizuj plik start_app.bat, lewym przyciskiem myszy kliknij dwa razy
+   2. Plik ten włączy skrypt który sprawdzi dostępność bibliotek. Jeśli nie wykryje jakiejkolwiek spośród wymaganych, przystąpi do instalacji. Jeśli użytkownik posiada wszystkie wymagane biblioteki, okno aplikacji włączy się w oknie domyślnej przeglądarki
+3. Poprzez terminal: w pobranym folderze za pomocą terminala należy wywołać komendę: **streamlit run Home.py** (Zalecane użycie '--server.runOnSave=false' na końcu komendy w celu szybszego działania aplikacji)
+
 ## 📈 Izoterma napięcia powierzchniowego — Model Szyszkowskiego
 
 Ta zakładka umożliwia analizę danych eksperymentalnych opisujących zależność napięcia powierzchniowego od stężenia surfaktantu w roztworze. Wykorzystywany jest model Szyszkowskiego z ustaloną wartością napięcia powierzchniowego czystej wody (γ₀ = 72 mN/m), a parametry izotermy są dopasowywane do danych metodą najmniejszych kwadratów.
