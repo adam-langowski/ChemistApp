@@ -61,7 +61,6 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # Tytuł i opis
-st.markdown('<p class="big-font">Obliczanie adsorpcji i napięcia powierzchniowego</p>', unsafe_allow_html=True)
 st.markdown('<p class="sub-font">Wybierz analizę, którą chcesz przeprowadzić</p>', unsafe_allow_html=True)
 
 
