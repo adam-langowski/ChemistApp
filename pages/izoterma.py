@@ -82,8 +82,8 @@ if uploaded_file is not None:
             st.write(f"**Ustalony parametr:**")
             st.write(f"- γ₀ (napięcie powierzchniowe wody) = {FIXED_Y0} mN/m")
             st.write(f"**Parametry dopasowania:**")
-            st.write(f"- B_sz = {B_sz_fit:.4f} (bezwymiarowe)")
-            st.write(f"- A_sz = {A_sz_fit:.6f} mol/L")
+            st.write(f"- B_sz = {B_sz_fit:.4f}")
+            st.write(f"- A_sz = {A_sz_fit * 1e6:.6f} µmol/L")
 
             # Obliczenie CMC
             cmc = A_sz_fit * (np.exp(1/B_sz_fit) - 1) *0.001  # mmol/L
@@ -166,8 +166,7 @@ if uploaded_file is not None:
             # Wyświetlanie równania
             equation_text = (
                 f"$\gamma = {FIXED_Y0} \cdot (1 - {B_sz_fit:.6f} \cdot "
-                f"\ln(\\frac{{c}}{{{A_sz_fit:.8f}}} + 1))$"
-            )
+                f"\ln(\\frac{{c}}{{{A_sz_fit * 1e6:.6f}}} + 1))$"            )
             plt.title(equation_text, fontsize=12, pad=20)
             
             st.pyplot(fig)
