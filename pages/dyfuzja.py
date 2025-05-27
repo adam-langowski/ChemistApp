@@ -30,7 +30,7 @@ def fit_linear_model_cached(x_bytes, y_bytes):
 
 st.title("📉 Analiza kinetyki adsorpcji – wyznaczanie współczynników")
 
-uploaded_file = st.file_uploader("Wczytaj plik z danymi (np. .dat lub .txt)", type=["dat", "txt"])
+uploaded_file = st.file_uploader("Wczytaj plik z danymi (np. .dat lub .txt)", type=["txt"])
 
 if uploaded_file is not None:
     df = load_data(uploaded_file)
@@ -85,19 +85,33 @@ if uploaded_file is not None:
 
     st.subheader("📊 Wyznaczanie współczynnika dyfuzji")
 
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
+
     with col1:
-        n = st.number_input("n (1 = niejonowy, 2 = jonowy)", value=1)
+        temp_scale = st.selectbox("Skala temperatury", ["Celsjusz", "Farenheit", "Kelvin"])
+
     with col2:
-        T_celsius = st.number_input("Temperatura [°C]", value=23.1)
-        T = T_celsius + 273.15
+        temp_input = st.number_input("Temperatura", value=23.1)
+        if temp_scale == "Celsjusz":
+            T = temp_input + 273.15
+        elif temp_scale == "Farenheit":
+            T = (temp_input - 32) * 5 / 9 + 273.15
+        else:  # Kelvin
+            T = temp_input
+
     with col3:
+        n = st.number_input("n (1 = niejonowy, 2 = jonowy)", value=1)
+
+    with col4:
         c = st.number_input("Stężenie surfaktantu [mol/L]", value=1e-3, format="%.5f")
+
+    c_m3 = c * 1000  # mol/L → mol/m³
 
     R = 8.314  # J/mol·K
 
     try:
-        D = ((a / (-2 * n * R * T * c)) ** 2) * np.pi
+        D = ((a / (-2 * n * R * T * c_m3)) ** 2) * np.pi
         st.write(f"**Współczynnik dyfuzji D** = {D:.4e} m²/s")
     except Exception as e:
         st.error(f"Nie udało się obliczyć D: {e}")
+
