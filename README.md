@@ -1,21 +1,25 @@
-
 Bioinformatyka 2025 MGR
 
 # OPIS APLIKACJI
 
-## :gear:Instalacja i uruchomienie
+## ⚙️Instalacja i uruchomienie
+
 ### Informacje
+
 Aplikacja powstała w środowisku Python i do poprawnego działania wymaga kilku bibliotek:
+
 - streamlit ( 1.44.1+)
 - numpy (1.26.4+)
 - pandas (2.2.2+)
 - matplotlib (3.9.1+)
 - scipy (1.13.1+)
 
-Aplikacja została stworzona na wersjach zawartych w nawiasach powyżej. Zalecane jest korzystanie z tych lub nowszych wersji. 
+Aplikacja została stworzona na wersjach zawartych w nawiasach powyżej. Zalecane jest korzystanie z tych lub nowszych wersji.
 
 ### Uruchomienie
+
 Istnieją trzy sposoby włączenia aplikacji:
+
 - [Dostęp online](https://chemist-assist.streamlit.app/) - Aplikacja została zbudowana na bazie biblioteki streamlit co umożliwia hostowanie jej online. Nie wymaga instalowania żadnych bibliotek.
 - **Z użyciem skryptu:**
   1. W pobranym folderze zlokalizuj plik start_app.bat, lewym przyciskiem myszy kliknij dwa razy
@@ -27,7 +31,7 @@ Istnieją trzy sposoby włączenia aplikacji:
 
 ## 📈 Izoterma napięcia powierzchniowego — Model Szyszkowskiego
 
-Ta zakładka umożliwia analizę danych eksperymentalnych opisujących zależność napięcia powierzchniowego od stężenia surfaktantu w roztworze. Wykorzystywany jest model Szyszkowskiego z ustaloną wartością napięcia powierzchniowego czystej wody (γ₀ = 72 mN/m), a parametry izotermy są dopasowywane do danych metodą najmniejszych kwadratów.
+Ta zakładka umożliwia analizę danych eksperymentalnych opisujących zależność napięcia powierzchniowego od stężenia surfaktantu w roztworze. Wykorzystywany jest model Szyszkowskiego z ustalaną przez użytkownika wartością napięcia powierzchniowego wody (domyślnie γ₀ = 72 mN/m), a parametry izotermy są dopasowywane do danych metodą najmniejszych kwadratów.
 
 **Funkcjonalności**:
 
@@ -41,12 +45,11 @@ Ta zakładka umożliwia analizę danych eksperymentalnych opisujących zależno�
   - **R²** — współczynnik dopasowania modelu.
 - **Interaktywna analiza wpływu parametrów modelu na kształt krzywej i wartość CMC**.
 - Wsparcie dla surfaktantów jonowych i niejonowych (z możliwością określenia stopnia dysocjacji α).
-- Eksport wyników analizy do pliku CSV.
+- Eksport wyników analizy do pliku CSV o podanej nazwie.
 
 Podgląd:
 
-![1744667220563](image/README/1744667220563.png)
-
+![1748343447526](image/README/1748343447526.png)
 
 ## 📉 Analiza kinetyki adsorpcji – wyznaczanie współczynników dyfuzji
 
@@ -66,7 +69,6 @@ Ta zakładka umożliwia analizę danych kinetycznych z eksperymentów pomiaru na
   - `c` – stężenie surfaktantu w mol/L.
 - Interaktywna wizualizacja wyników na wykresie.
 - Obsługa kodowania plików w standardzie Windows-1250 oraz separatorów tabulacji.
-
 
 ## 💧 Wyznaczanie kąta zwilżania
 
@@ -88,7 +90,7 @@ Zakładka umożliwia obliczenie kąta zwilżania na podstawie danych eksperyment
   - współczynnika kierunkowego,
   - wyznaczenie stałej `A = 1/slope`.
 - Obliczenie kąta zwilżania θ na podstawie wzoru:
-  
+
 cos(θ) = η / (B · ρ² · γ · A) θ = arccos(cos(θ))
 
 - Prezentacja wyników:
@@ -99,18 +101,19 @@ cos(θ) = η / (B · ρ² · γ · A) θ = arccos(cos(θ))
   - zakres regresji oznaczony kolorystycznie,
   - linie pomocnicze wyznaczające wybrany przedział czasu.
 
-
 ## ⚡ Wyznaczanie energii powierzchniowej
 
 Zakładka umożliwia obliczenie energii powierzchniowej różnych cieczy za pomocą dwóch metod: Zismana oraz OWRK.
 
 ### Metoda Zismana
+
 - Pozwala na wyznaczenie krytycznej energii powierzchniowej na podstawie kąta zwilżania i napięcia powierzchniowego.
 - Użytkownik może wybrać jedną z predefiniowanych cieczy lub wprowadzić własne parametry cieczy (napięcie powierzchniowe `γ`, składniki `γᵈ` i `γᵖ`).
 - Do obliczenia wykorzystywana jest regresja liniowa pomiędzy `γ` a `cos(θ)`, gdzie `θ` to kąt zwilżania.
 - Po obliczeniach wyświetlana jest krytyczna energia powierzchniowa (`γ_c`), a także wykres z regresją i oznaczeniem wartości krytycznej.
 
 ### Metoda OWRK
+
 - Umożliwia wyznaczenie składników energii powierzchniowej na podstawie danych o składnikach dyspersyjnym (`γᵈ`) i polarnym (`γᵖ`).
 - Wymaga minimum dwóch punktów z uzupełnionymi wartościami `γᵈ` i `γᵖ`.
 - Obliczane są:
@@ -119,6 +122,7 @@ Zakładka umożliwia obliczenie energii powierzchniowej różnych cieczy za pomo
   - całkowita energia powierzchniowa `γˢ`.
 
 **Funkcjonalności**:
+
 - Dodawanie punktów pomiarowych dla różnych cieczy i ich parametrów,
 - Możliwość edytowania lub usuwania wprowadzonych punktów,
 - Interaktywna wizualizacja wyników za pomocą wykresów,

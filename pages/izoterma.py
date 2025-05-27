@@ -7,9 +7,19 @@ from scipy.optimize import curve_fit
 st.title("Izoterma napięcia powierzchniowego — Model Szyszkowskiego")
 
 # Stałe fizyczne
-FIXED_Y0 = 72.0   # Napięcie powierzchniowe wody w 20°C [mN/m]
 R = 8.314         # Stała gazowa [J/mol·K]
 T = 298           # Temperatura [K]
+
+# Edytowalne napięcie powierzchniowe wody
+FIXED_Y0 = st.number_input(
+    "Napięcie powierzchniowe wody γ₀ [mN/m]:",
+    min_value=50.0,
+    max_value=100.0,
+    value=72.0,
+    step=0.1,
+    format="%.1f",
+    help="Napięcie powierzchniowe wody w 20°C wynosi około 72.0 mN/m"
+)
 
 uploaded_file = st.file_uploader("Wczytaj plik CSV z danymi (z separatorem ';')", type="csv")
 
@@ -80,7 +90,7 @@ if uploaded_file is not None:
 
             st.subheader("Dopasowanie modelu Szyszkowskiego")
             st.write(f"**Ustalony parametr:**")
-            st.write(f"- γ₀ (napięcie powierzchniowe wody) = {FIXED_Y0} mN/m")
+            st.write(f"- γ₀ (napięcie powierzchniowe wody) = {FIXED_Y0:.2f} mN/m")
             st.write(f"**Parametry dopasowania:**")
             st.write(f"- B_sz = {B_sz_fit:.4f}")
             st.write(f"- A_sz = {A_sz_fit * 1e6:.6f} µmol/L")
@@ -107,7 +117,7 @@ if uploaded_file is not None:
 
             # Wyświetlanie równania termodynamicznego
             st.markdown(
-                f"ΔGm = RT⋅{'('+str(1+alpha)+')' if surfactant_type == 'Jonowy' else ''}⋅ln(CMC) = "
+                f"ΔGm = RT{'⋅('+str(1+alpha)+')' if surfactant_type == 'Jonowy' else ''}⋅ln(CMC) = "
                 f"{delta_gm:.4f} kJ/mol"
             )
 
@@ -165,7 +175,7 @@ if uploaded_file is not None:
             
             # Wyświetlanie równania
             equation_text = (
-                f"$\gamma = {FIXED_Y0} \cdot (1 - {B_sz_fit:.6f} \cdot "
+                f"$\gamma = {FIXED_Y0:.2f} \cdot (1 - {B_sz_fit:.6f} \cdot "
                 f"\ln(\\frac{{c}}{{{A_sz_fit * 1e6:.6f}}} + 1))$"            )
             plt.title(equation_text, fontsize=12, pad=20)
             
@@ -175,15 +185,22 @@ if uploaded_file is not None:
 
             # Eksport wyników
             results = pd.DataFrame({
-                "Parametr": ["γ₀ (ustalone)", "B_sz", "A_sz", "CMC", "Γ (CMC)", "Γ_max", "ΔGm", "R²"],
-                "Wartość": [FIXED_Y0, B_sz_fit, A_sz_fit, cmc, gamma, gamma_max, delta_gm, r_squared],
-                "Jednostka": ["mN/m", "-", "mol/L", "mol/L", "mol/m²", "mol/m²", "kJ/mol", "-"]
+                "Parametr": ["gamma_0 (ustalone)", "B_sz", "A_sz", "CMC", "Gamma (CMC)", "Gamma_max", "DeltaGm", "R2"],
+                "Wartosc": [round(FIXED_Y0,2), round(B_sz_fit,8), round(A_sz_fit,8), cmc, gamma, gamma_max, delta_gm, round(r_squared,3)],
+                "Jednostka": ["mN/m", "-", "mol/L", "mol/L", "mol/m2", "mol/m2", "kJ/mol", "-"]
             })
             
-            csv = results.to_csv(index=False, sep=";").encode('utf-8')
+            # Pole do wprowadzenia nazwy pliku
+            filename = st.text_input(
+                "Nazwa pliku do zapisu:",
+                value="wyniki_izotermy",
+                help="Wprowadź nazwę pliku bez rozszerzenia .csv"
+            )
+            
+            csv = results.to_csv(index=False, sep=";", encoding='utf-8-sig')
             st.download_button(
                 label="Pobierz wyniki jako CSV",
                 data=csv,
-                file_name="wyniki_izotermy.csv",
+                file_name=f"{filename}.csv",
                 mime="text/csv"
             )
