@@ -89,7 +89,6 @@ if st.session_state.punkty:
     st.pyplot(fig)
 
     st.markdown(f"Krytyczna energia powierzchniowa = **{gamma_c:.2f} mN/m**")
-
 else:
     st.info("Dodaj przynajmniej jeden punkt, aby zobaczyć wykres Zismana.")
 
@@ -97,14 +96,38 @@ else:
 
 
 
+
 st.title("Wyznaczanie energii powierzchniowej – metoda OWRK")
 
+df_owrk = pd.DataFrame([
+    p for p in st.session_state.punkty
+    if p["gamma_d"] is not None and p["gamma_p"] is not None
+])
 
-df_owrk = pd.DataFrame([p for p in st.session_state.punkty if p["gamma_d"] is not None and p["gamma_p"] is not None])
-if len(df_owrk) >= 2:
+if len(df_owrk) < 2:
+    st.info("Aby skorzystać z metody OWRK, dodaj przynajmniej dwa punkty z pełnymi danymi (γ, γᵈ, γᵖ).")
+else:
+    if len(df_owrk) > 2:
+        st.subheader("🔢 Wybierz dwa punkty do obliczeń")
+        labels = [
+            f"{i+1}. {row['ciecz']} – θ={row['theta']}°"
+            for i, row in df_owrk.iterrows()
+        ]
+        selected_labels = st.multiselect("Wybierz dwa punkty:", labels, max_selections=2)
+
+        if len(selected_labels) != 2:
+            st.warning("Musisz wybrać dokładnie dwa punkty.")
+            st.stop()
+
+        selected_indices = [int(label.split(".")[0]) - 1 for label in selected_labels]
+        selected_rows = df_owrk.iloc[selected_indices]
+    else:
+        selected_rows = df_owrk.iloc[:2]
+
     y_vals = []
     x_vals = []
-    for _, row in df_owrk.iterrows():
+
+    for _, row in selected_rows.iterrows():
         gamma_L = row["gamma"]
         gamma_L_d = row["gamma_d"]
         gamma_L_p = row["gamma_p"]
@@ -112,20 +135,23 @@ if len(df_owrk) >= 2:
 
         y = gamma_L * (cos_theta + 1) / (2 * np.sqrt(gamma_L_d))
         x = np.sqrt(gamma_L_p) / np.sqrt(gamma_L_d)
+
         y_vals.append(y)
         x_vals.append(x)
 
-    slope, intercept, _, _, _ = linregress(x_vals, y_vals)
+    x1, x2 = x_vals
+    y1, y2 = y_vals
 
-    gamma_S_p = slope**2
-    gamma_S_d = intercept**2
+    a = (y2 - y1) / (x2 - x1)
+    b = y1 - a * x1
+
+    gamma_S_p = a ** 2
+    gamma_S_d = b ** 2
     gamma_S_total = gamma_S_p + gamma_S_d
 
-    st.success("Obliczenia metodą OWRK:")
+    st.success("Obliczenia metodą OWRK (dla wybranych dwóch cieczy):")
     st.markdown(f"""
-    - Składnik polarny powierzchni: **γˢᵖ = {gamma_S_p:.2f} mN/m**
-    - Składnik dyspersyjny powierzchni: **γˢᵈ = {gamma_S_d:.2f} mN/m**
+    - Składnik polarny powierzchni: **γˢᵖ = {gamma_S_p:.2f} mN/m**  
+    - Składnik dyspersyjny powierzchni: **γˢᵈ = {gamma_S_d:.2f} mN/m**  
     - Całkowita energia powierzchniowa: **γˢ = {gamma_S_total:.2f} mN/m**
     """)
-else:
-    st.info("Aby wyznaczyć energię powierzchniową metodą OWRK, podaj przynajmniej dwa punkty z uzupełnionymi wartościami γᵈ i γᵖ.")
