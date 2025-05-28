@@ -4,9 +4,9 @@ import numpy as np
 import pandas as pd
 from scipy.stats import linregress
 
-st.title(" Wyznaczanie energii powierzchniowej – metoda Zismana")
+st.title("Wyznaczanie energii powierzchniowej – metoda Zismana")
 
-# parametry dla predefiniowanych cieczy
+# Predefined liquids
 predef_ciecze = {
     "Woda": {"gamma": 72.8, "gamma_d": 21.8, "gamma_p": 51.0},
     "Glicerol": {"gamma": 63.4, "gamma_d": 37.0, "gamma_p": 26.4},
@@ -20,44 +20,37 @@ predef_ciecze = {
 if "punkty" not in st.session_state:
     st.session_state.punkty = []
 
-# dodawanie nowego punktu
 st.subheader("➕ Dodaj nowy punkt pomiarowy")
-with st.form("add_point_form", clear_on_submit=True):
-    selected_liquid = st.selectbox("Wybierz ciecz pomiarową", list(predef_ciecze.keys()))
-    
-    if selected_liquid != "Inna":
-        gamma = predef_ciecze[selected_liquid]["gamma"]
-        gamma_d = predef_ciecze[selected_liquid].get("gamma_d")
-        gamma_p = predef_ciecze[selected_liquid].get("gamma_p")
+selected_liquid_key = st.selectbox("Wybierz ciecz pomiarową", list(predef_ciecze.keys()), key="selected_liquid")
 
-        st.write(f"**Napięcie powierzchniowe γ:** {gamma} mN/m")
-        if gamma_d is not None:
-            st.write(f"**Składnik dyspersyjny γᵈ:** {gamma_d} mN/m")
-        if gamma_p is not None:
-            st.write(f"**Składnik polarny γᵖ:** {gamma_p} mN/m")
-    else:
-        gamma = st.number_input("γ [mN/m]", step=0.1)
-        gamma_d = st.number_input("γᵈ (opcjonalnie)", step=0.1)
-        gamma_p = st.number_input("γᵖ (opcjonalnie)", step=0.1)
-    
-    theta = st.number_input("Kąt zwilżania θ [°]", min_value=0.0, max_value=180.0, step=0.1)
-    submitted = st.form_submit_button("Dodaj punkt")
-    
-    if submitted:
-        st.session_state.punkty.append({
-            "ciecz": selected_liquid,
-            "gamma": gamma,
-            "gamma_d": gamma_d,
-            "gamma_p": gamma_p,
-            "theta": theta,
-            "cos_theta": np.cos(np.radians(theta))
-        })
+input_data = {}
 
-# tabela dodanych punktów
+if selected_liquid_key == "Inna":
+    input_data["ciecz"] = st.text_input("Nazwa cieczy", value="Ciecz")
+    input_data["gamma"] = st.number_input("γ [mN/m]", step=0.1, min_value=0.0)
+    input_data["gamma_d"] = st.number_input("γᵈ (opcjonalnie)", step=0.1, min_value=0.0)
+    input_data["gamma_p"] = st.number_input("γᵖ (opcjonalnie)", step=0.1, min_value=0.0)
+else:
+    ciecz_info = predef_ciecze[selected_liquid_key]
+    input_data["ciecz"] = selected_liquid_key
+    input_data["gamma"] = ciecz_info["gamma"]
+    input_data["gamma_d"] = ciecz_info["gamma_d"]
+    input_data["gamma_p"] = ciecz_info["gamma_p"]
+
+    st.markdown(f"**γ:** {input_data['gamma']} mN/m")
+    st.markdown(f"**γᵈ:** {input_data['gamma_d']} mN/m")
+    st.markdown(f"**γᵖ:** {input_data['gamma_p']} mN/m")
+
+input_data["theta"] = st.number_input("Kąt zwilżania θ [°]", min_value=0.0, max_value=180.0, step=0.1)
+
+if st.button("Dodaj punkt"):
+    input_data["cos_theta"] = np.cos(np.radians(input_data["theta"]))
+    st.session_state.punkty.append(input_data)
+    st.success(f"Punkt dodany: {input_data['ciecz']}")
+
 if st.session_state.punkty:
     st.subheader("Dodane punkty")
 
-    # umożliwia usuwanie punktów
     for i, pkt in enumerate(st.session_state.punkty):
         cols = st.columns([4, 2, 2, 2, 1])
         cols[0].markdown(f"**{pkt['ciecz']}**")
@@ -69,13 +62,11 @@ if st.session_state.punkty:
             st.rerun()
 
     st.subheader("Wykres Zismana")
-
     df = pd.DataFrame(st.session_state.punkty)
     x = df["gamma"].to_numpy()
     y = df["cos_theta"].to_numpy()
 
     slope, intercept, r_value, _, _ = linregress(x, y)
-
     gamma_c = (1 - intercept) / slope if slope != 0 else np.nan
 
     fig, ax = plt.subplots()
@@ -96,9 +87,7 @@ else:
 
 
 
-
 st.title("Wyznaczanie energii powierzchniowej – metoda OWRK")
-
 df_owrk = pd.DataFrame([
     p for p in st.session_state.punkty
     if p["gamma_d"] is not None and p["gamma_p"] is not None
@@ -124,8 +113,7 @@ else:
     else:
         selected_rows = df_owrk.iloc[:2]
 
-    y_vals = []
-    x_vals = []
+    y_vals, x_vals = [], []
 
     for _, row in selected_rows.iterrows():
         gamma_L = row["gamma"]
@@ -141,7 +129,6 @@ else:
 
     x1, x2 = x_vals
     y1, y2 = y_vals
-
     a = (y2 - y1) / (x2 - x1)
     b = y1 - a * x1
 
