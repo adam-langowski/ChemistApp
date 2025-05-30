@@ -88,9 +88,9 @@ Ta zakładka umożliwia analizę danych kinetycznych z eksperymentów pomiaru na
 
 - **Obliczenie stałej `k₂`** wg wzoru:
 
-  \[
-  k_2 = \frac{4}{\pi} \cdot \left( \frac{a_{\text{micelarny}}}{a_{\text{premicelarny}}} \right)^2
-  \]
+$$
+k_2 = \frac{4}{\pi} \cdot \left( \frac{a_{\text{micelarny}}}{a_{\text{premicelarny}}} \right)^2
+$$
 
   gdzie `a` to współczynniki kierunkowe z regresji liniowej. Jednostką `k₂` jest ms.
 
@@ -115,7 +115,9 @@ Zakładka umożliwia obliczenie kąta zwilżania na podstawie danych eksperyment
   - wyznaczenie stałej `A = 1/slope`.
 - Obliczenie kąta zwilżania θ na podstawie wzoru:
 
-cos(θ) = η / (B · ρ² · γ · A) θ = arccos(cos(θ))
+$$
+\cos(\theta) = \frac{\eta}{B \cdot \rho^2 \cdot \gamma \cdot A}, \quad \theta = \arccos(\cos(\theta))
+$$
 
 - Prezentacja wyników:
   - wartość współczynnika kierunkowego,
@@ -236,9 +238,9 @@ This section supports the analysis of surface tension kinetics data measured as 
 
 - **Estimation of the adsorption rate constant `k₂`** using the formula:
 
-  \[
-  k_2 = \frac{4}{\pi} \cdot \left( \frac{a_{\text{micellar}}}{a_{\text{premicellar}}} \right)^2
-  \]
+$$
+k_2 = \frac{4}{\pi} \cdot \left( \frac{a_{\text{micelarny}}}{a_{\text{premicelarny}}} \right)^2
+$$
 
   where `a` is the slope from the regression. The unit of `k₂` is milliseconds (ms).
 
@@ -265,9 +267,9 @@ This section calculates the contact angle of a surface based on experimental mas
   - calculation of constant `A = 1/slope`.
 - **Computation of the contact angle θ** based on:
 
-  \[
-  \cos(\theta) = \frac{\eta}{B \cdot \rho^2 \cdot \gamma \cdot A}, \quad \theta = \arccos(\cos(\theta))
-  \]
+$$
+\cos(\theta) = \frac{\eta}{B \cdot \rho^2 \cdot \gamma \cdot A}, \quad \theta = \arccos(\cos(\theta))
+$$
 
 - Display of results:
   - slope, constant `A`,
