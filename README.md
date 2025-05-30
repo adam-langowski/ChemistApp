@@ -1,3 +1,10 @@
+# 📘 Wybierz język / Choose language
+
+- 🇵🇱 [Polski](#opis-aplikacji)
+- 🇬🇧 [English](#application-description)
+
+---
+
 Bioinformatyka 2025 MGR
 
 # OPIS APLIKACJI
@@ -144,3 +151,152 @@ Zakładka umożliwia obliczenie energii powierzchniowej różnych cieczy za pomo
 - Możliwość edytowania lub usuwania wprowadzonych punktów,
 - Interaktywna wizualizacja wyników za pomocą wykresów,
 - Obliczenia energii powierzchniowej oraz wyświetlanie wyników metodą Zismana i OWRK.
+
+
+# APPLICATION DESCRIPTION
+
+## ⚙️ Installation and Launch
+
+### Requirements
+
+The application was developed in Python and requires the following libraries:
+
+- streamlit (1.44.1+)
+- numpy (1.26.4+)
+- pandas (2.2.2+)
+- matplotlib (3.9.1+)
+- scipy (1.13.1+)
+
+The app was tested with the above versions, and it is recommended to use them or newer.
+
+### Running the Application
+
+There are three ways to launch the application:
+
+- [Online access](https://chemist-assist.streamlit.app/) – The app is built using the Streamlit framework, which enables online hosting. No installation is required.
+- **Via script:**
+  1. Locate the `start_app.bat` file in the downloaded folder and double-click it.
+  2. The script checks for required libraries. If any are missing, they will be installed. If all are present, the app will open in the default browser.
+- **Via terminal:**  
+  In the project folder, run the following command:  
+  `streamlit run Home.py`  
+  (It is recommended to add `--server.runOnSave=false` at the end to improve performance.)
+
+> [!WARNING]  
+> If using the script, **do not close the terminal** while the app is running. You can close it once you are done.
+
+## 📈 Surface Tension Isotherm – Szyszkowski Model
+
+This section allows for the analysis of experimental data describing the relationship between surface tension and surfactant concentration in a solution. The Szyszkowski model is applied using a user-defined water surface tension (default γ₀ = 72 mN/m), and parameters are fitted using the least squares method.
+
+**Features**:
+
+- CSV file import (with `stezenie` and `napiecie` columns).
+- Curve fitting using the Szyszkowski model.
+- Calculation and presentation of key physicochemical parameters:
+  - **B** and **A** – model constants,
+  - **CMC** – critical micelle concentration,
+  - **Γ (CMC)** and **Γ_max** – surface excess at CMC and theoretical maximum,
+  - **ΔG_m** – free energy of micellization,
+  - **R²** – goodness-of-fit coefficient.
+- **Interactive adjustment** of model parameters and real-time curve visualization.
+- Support for ionic and non-ionic surfactants (user-defined dissociation degree `α`).
+- Export of fitted results to a user-named CSV file.
+
+Preview:
+
+![1748343447526](image/README/1748343447526.png)
+
+## 📉 Adsorption Kinetics – Diffusion Coefficient and `k₂` Estimation
+
+This section supports the analysis of surface tension kinetics data measured as a function of bubble lifetime (`t-life` method). Based on the relationship between surface tension (`σ`) and lifetime (`Tlife`), the app calculates the diffusion coefficient `D` and adsorption rate constant `k₂`.
+
+### Features:
+
+- **Import of two input files** (`.txt`, `.dat`):
+  - one for the **premicellar region**,
+  - one for the **micellar region**.
+
+- **Point selection and filtering**:
+  - Editable table view with **checkbox selection** for including/excluding specific points.
+
+- **Automatic transformation of data**:
+  - `√Tlife` – for **premicellar region**,
+  - `1/Tlife` – for **micellar region**.
+
+- **Linear regression** of σ vs transformed X separately for each region.
+
+- **Display of regression slope** for both regions.
+
+- **Calculation of diffusion coefficient `D`** based on:
+  - `n` – aggregation number (1 for non-ionic, 2 for ionic),
+  - `T` – temperature (°C, °F, or K),
+  - `c` – surfactant concentration (mol/L, auto-converted to mol/m³),
+  - conversion of `σ` from mN/m to N/m included.
+
+- **Estimation of the adsorption rate constant `k₂`** using the formula:
+
+  \[
+  k_2 = \frac{4}{\pi} \cdot \left( \frac{a_{\text{micellar}}}{a_{\text{premicellar}}} \right)^2
+  \]
+
+  where `a` is the slope from the regression. The unit of `k₂` is milliseconds (ms).
+
+- **Clear visualization** of each dataset with fitted regression lines.
+
+## 💧 Wetting Angle Estimation
+
+This section calculates the contact angle of a surface based on experimental mass gain during the wetting process.
+
+**Features**:
+
+- Manual input of fluid physicochemical properties:
+  - `η` – viscosity [mPa·s],
+  - `ρ` – density [g/cm³],
+  - `γ` – surface tension [mN/m],
+  - `B` – material constant of the solid surface.
+- CSV file input containing:
+  - `czas` – time in seconds,
+  - `masa` – sample mass in grams.
+- Automatic computation of `masa²` and data visualization.
+- **Interactive selection of time range** for linear regression (`masa²` vs `czas`).
+- Linear regression output:
+  - slope of the fitted line,
+  - calculation of constant `A = 1/slope`.
+- **Computation of the contact angle θ** based on:
+
+  \[
+  \cos(\theta) = \frac{\eta}{B \cdot \rho^2 \cdot \gamma \cdot A}, \quad \theta = \arccos(\cos(\theta))
+  \]
+
+- Display of results:
+  - slope, constant `A`,
+  - `cos(θ)` and angle `θ` in degrees.
+- Visualization of selected time interval and regression line.
+
+## ⚡ Surface Energy Calculation
+
+This section allows for the determination of surface energy of liquids using the **Zisman method** or **OWRK method**.
+
+### Zisman Method
+
+- Estimates the critical surface energy from contact angle and surface tension data.
+- Supports predefined or user-defined liquid parameters (`γ`, `γᵈ`, `γᵖ`).
+- Performs linear regression of `γ` vs `cos(θ)`.
+- Displays the **critical surface energy (γ_c)** and the regression plot with its intersection.
+
+### OWRK Method
+
+- Estimates surface energy components based on dispersive (`γᵈ`) and polar (`γᵖ`) contributions.
+- Requires at least two measurements with full component values.
+- Calculates:
+  - surface polar component `γˢᵖ`,
+  - surface dispersive component `γˢᵈ`,
+  - total surface energy `γˢ`.
+
+**Features**:
+
+- Add and edit liquid measurement points with individual parameters.
+- Delete, modify, and visualize selected data.
+- Display of OWRK and Zisman results with graphical output.
+
