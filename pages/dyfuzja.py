@@ -23,59 +23,53 @@ def fit_linear_model_cached(x_bytes, y_bytes):
 
     x = np.frombuffer(x_bytes).reshape(-1, 1)
     y = np.frombuffer(y_bytes)
-
     model = LinearRegression()
     model.fit(x, y)
     return model
 
-st.title("📉 Analiza kinetyki adsorpcji – wyznaczanie współczynników")
+def analiza_i_wykres(df, tryb_label, x_column, x_label):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    import pandas as pd
 
-uploaded_file = st.file_uploader("Wczytaj plik z danymi (np. .dat lub .txt)", type=["txt"])
+    # Przygotuj dataframe do edycji
+    df_editable = df[["sigma", "tlife", "sqrt_tlife", "inv_tlife"]].copy()
+    df_editable["Użyj"] = True  # domyślnie zaznaczone wszystkie
 
-if uploaded_file is not None:
-    df = load_data(uploaded_file)
+    st.markdown(f"### 📄 Podgląd i wybór punktów ({tryb_label})")
+    edited_df = st.data_editor(
+        df_editable,
+        column_config={"Użyj": st.column_config.CheckboxColumn("Użyj punktu")},
+        disabled=["sigma", "tlife", "sqrt_tlife", "inv_tlife"],
+        use_container_width=True,
+        key=tryb_label
+    )
 
-    if "tlife" not in df.columns or "sigma" not in df.columns:
-        st.error("Plik musi zawierać kolumny 'Tlife' i 'sigma'")
-    else:
-        import numpy as np
+    # Filtrowanie tylko zaznaczonych punktów
+    df_filtered = df.copy()
+    df_filtered["Użyj"] = edited_df["Użyj"]
+    df_filtered = df_filtered[df_filtered["Użyj"] == True]
 
-        st.subheader("📄 Podgląd danych")
-        st.dataframe(df[["sigma", "tlife", "sqrt_tlife", "inv_tlife"]].style.format(precision=4))
+    if df_filtered.empty:
+        st.warning("❗ Zaznacz przynajmniej jeden punkt do analizy.")
+        return None
 
-        st.subheader("⚙️ Wybierz tryb analizy")
-        tryb = st.radio("Tryb przekształcenia osi X:", ("Obszar premicelarny (√Tlife)", "Obszar micelarny (1/Tlife)"))
+    x = df_filtered[x_column].values.reshape(-1, 1)
+    y = df_filtered["sigma"].values
 
-    if tryb == "Obszar premicelarny (√Tlife)":
-        x = df["sqrt_tlife"].values.reshape(-1, 1)
-        x_label = "√Tlife [√ms]"
-        plot_title = "Dopasowanie liniowe: sigma vs. √Tlife"
-    else:
-        x = df["inv_tlife"].values.reshape(-1, 1)
-        x_label = "1/Tlife [1/ms]"
-        plot_title = "Dopasowanie liniowe: sigma vs. 1/Tlife"
-
-    y = df["sigma"].values
-
-    # Bufory do hashowania
     x_bytes = x.tobytes()
     y_bytes = y.tobytes()
-
     model = fit_linear_model_cached(x_bytes, y_bytes)
     y_pred = model.predict(x)
-    a = model.coef_[0]
-    b = model.intercept_
+    a, b = model.coef_[0], model.intercept_
 
-    st.subheader("📐 Współczynnik kierunkowy (nachylenie)")
+    st.markdown(f"### 📐 Współczynnik kierunkowy ({tryb_label})")
     st.write(f"y = **{a:.4f}·x + {b:.4f}**")
-    st.write("Ten współczynnik będzie służył do obliczeń dyfuzji i dysocjacji.")
-
-    import matplotlib.pyplot as plt
 
     fig, ax = plt.subplots(figsize=(6, 4), dpi=150)
-    ax.set_title(plot_title, fontsize=10, fontweight='bold')
+    ax.set_title(f"{tryb_label}", fontsize=10, fontweight='bold')
     ax.tick_params(axis='both', labelsize=10)
-    ax.scatter(x, y, color="#1f77b4", s=30, label="Dane eksperymentalne")
+    ax.scatter(x, y, color="#1f77b4", s=30, label="Wybrane punkty")
     ax.plot(x, y_pred, color="#d62728", linewidth=2, label="Dopasowana prosta")
     ax.grid(True, linestyle="--", alpha=0.5)
     ax.set_xlabel(x_label, fontsize=8)
@@ -83,35 +77,74 @@ if uploaded_file is not None:
     ax.legend(loc="best", fontsize=8, frameon=True)
     st.pyplot(fig, use_container_width=False)
 
+    return a
+
+
+st.title("📉 Analiza kinetyki adsorpcji – tryb podwójny")
+
+col1, col2 = st.columns(2)
+with col1:
+    premicel_file = st.file_uploader("📁 Wczytaj plik *premicelarny*", type=["txt", "dat"], key="premicel")
+with col2:
+    micel_file = st.file_uploader("📁 Wczytaj plik *micelarny*", type=["txt", "dat"], key="micel")
+
+a_premi = None
+a_mice = None
+
+if premicel_file:
+    df_premi = load_data(premicel_file)
+    a_premi = analiza_i_wykres(df_premi, "premicelarny", "sqrt_tlife", "√Tlife [√ms]")
+
+if micel_file:
+    df_mice = load_data(micel_file)
+    a_mice = analiza_i_wykres(df_mice, "micelarny", "inv_tlife", "1/Tlife [1/ms]")
+
+if a_premi or a_mice:
     st.subheader("📊 Wyznaczanie współczynnika dyfuzji")
+    import numpy as np
 
     col1, col2, col3, col4 = st.columns(4)
-
     with col1:
         temp_scale = st.selectbox("Skala temperatury", ["Celsjusz", "Farenheit", "Kelvin"])
-
     with col2:
         temp_input = st.number_input("Temperatura", value=23.1)
         if temp_scale == "Celsjusz":
             T = temp_input + 273.15
         elif temp_scale == "Farenheit":
             T = (temp_input - 32) * 5 / 9 + 273.15
-        else:  # Kelvin
+        else:
             T = temp_input
-
     with col3:
         n = st.number_input("n (1 = niejonowy, 2 = jonowy)", value=1)
-
     with col4:
         c = st.number_input("Stężenie surfaktantu [mol/L]", value=1e-3, format="%.5f")
 
-    c_m3 = c * 1000  # mol/L → mol/m³
+    c_m3 = c * 1000
+    R = 8.314
 
-    R = 8.314  # J/mol·K
+    if a_premi:
+        try:
+            a_SI = a_premi / 1000  # mN/m -> N/m
+            D = ((a_SI / (-2 * n * R * T * c_m3)) ** 2) * np.pi
+            st.write(f"**Współczynnik dyfuzji D (premicelarny)** = {D:.4e} m²/s")
+        except Exception as e:
+            st.error(f"[Premicelarny] Błąd obliczeń: {e}")
+    if a_mice:
+        try:
+            a_SI = a_mice / 1000  # mN/m -> N/m
+            D = ((a_SI / (-2 * n * R * T * c_m3)) ** 2) * np.pi
+            st.write(f"**Współczynnik dyfuzji D (micelarny)** = {D:.4e} m²/s")
+        except Exception as e:
+            st.error(f"[Micelarny] Błąd obliczeń: {e}")
+
+if a_premi is not None and a_mice is not None:
+    st.subheader("📈 Obliczanie stałej k₂ ze wzoru")
 
     try:
-        D = ((a / (-2 * n * R * T * c_m3)) ** 2) * np.pi
-        st.write(f"**Współczynnik dyfuzji D** = {D:.4e} m²/s")
+        pi = np.pi
+        alpha = 1
+        k2 = (4 / pi) * ((a_mice / a_premi) ** 2)
+        st.write(r"$k_2 = \frac{4}{\pi} \cdot \left(\frac{a_{micelarny}}{a_{premicelarny}}\right)^2$")
+        st.latex(f"k_2 = \\frac{{4}}{{{pi}}} \\cdot \\left(\\frac{{{a_mice:.4e}}}{{{a_premi:.4e}}}\\right)^2 = {k2:.4e}")
     except Exception as e:
-        st.error(f"Nie udało się obliczyć D: {e}")
-
+        st.error(f"Nie udało się obliczyć k₂: {e}")
