@@ -1,11 +1,11 @@
+Bioinformatyka 2025 MGR
+
 # 📘 Wybierz język / Choose language
 
 - 🇵🇱 [Polski](#opis-aplikacji)
 - 🇬🇧 [English](#application-description)
 
 ---
-
-Bioinformatyka 2025 MGR
 
 # OPIS APLIKACJI
 
