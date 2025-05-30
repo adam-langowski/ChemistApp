@@ -51,24 +51,41 @@ Podgląd:
 
 ![1748343447526](image/README/1748343447526.png)
 
-## 📉 Analiza kinetyki adsorpcji – wyznaczanie współczynników dyfuzji
+## 📉 Analiza kinetyki adsorpcji – wyznaczanie współczynników dyfuzji i stałej `k₂`
 
-Ta zakładka umożliwia analizę danych kinetycznych z eksperymentów pomiaru napięcia powierzchniowego w czasie życia pęcherzyka (metoda `t-life`). Na podstawie zależności między napięciem powierzchniowym (`σ`) a czasem (`Tlife`) możliwe jest wyznaczenie współczynnika dyfuzji surfaktantu.
+Ta zakładka umożliwia analizę danych kinetycznych z eksperymentów pomiaru napięcia powierzchniowego w czasie życia pęcherzyka (metoda `t-life`). Na podstawie zależności między napięciem powierzchniowym (`σ`) a czasem (`Tlife`) możliwe jest wyznaczenie współczynnika dyfuzji surfaktantu oraz stałej `k₂` opisującej szybkość adsorpcji.
 
-**Funkcjonalności**:
+### Funkcjonalności:
 
-- Wczytywanie danych z plików `.txt` lub `.dat` z kolumnami `sigma` i `Tlife`.
-- Automatyczne przekształcenie danych do postaci:
-  - `√Tlife` — analiza dla obszaru premicelarnego,
-  - `1/Tlife` — analiza dla obszaru micelarnego.
-- Dopasowanie liniowe zależności `σ` od przekształconej osi X.
-- Obliczenie i prezentacja współczynnika kierunkowego (nachylenia prostej).
-- Wyznaczenie **współczynnika dyfuzji D** na podstawie nachylenia krzywej oraz zadanych parametrów:
-  - `n` – liczba cząsteczek (1 dla surfaktantów niejonowych, 2 dla jonowych),
-  - `T` – temperatura w °C,
-  - `c` – stężenie surfaktantu w mol/L.
-- Interaktywna wizualizacja wyników na wykresie.
-- Obsługa kodowania plików w standardzie Windows-1250 oraz separatorów tabulacji.
+- **Wczytywanie dwóch plików wejściowych** (`.txt`):
+  - jeden reprezentujący **obszar premicelarny**,
+  - drugi – **obszar micelarny**.
+
+- **Podgląd i selekcja punktów** do analizy:
+  - wyświetlanie danych w formie tabeli,
+  - możliwość **zaznaczania/odznaczania punktów**, które mają zostać uwzględnione w dopasowaniu i obliczeniach.
+
+- **Automatyczne przekształcenie danych** do postaci:
+  - `√Tlife` – analiza dla obszaru **premicelarnego**,
+  - `1/Tlife` – analiza dla obszaru **micelarnego**.
+
+- **Dopasowanie liniowe** zależności `σ` od przekształconej osi X dla każdego pliku osobno.
+
+- **Obliczenie i prezentacja współczynnika kierunkowego** (nachylenia prostej regresji) dla każdego obszaru.
+
+- **Wyznaczenie współczynnika dyfuzji `D`** na podstawie nachylenia regresji i podanych parametrów:
+  - `n` – liczba cząsteczek (1 dla niejonowych, 2 dla jonowych),
+  - `T` – temperatura (°C, °F lub K),
+  - `c` – stężenie surfaktantu (mol/L, automatycznie przeliczane na mol/m³),
+  - uwzględnione jednostki: `σ` konwertowane z mN/m do N/m.
+
+- **Obliczenie stałej `k₂`** wg wzoru:
+
+  \[
+  k_2 = \frac{4}{\pi} \cdot \left( \frac{a_{\text{micelarny}}}{a_{\text{premicelarny}}} \right)^2
+  \]
+
+  gdzie `a` to współczynniki kierunkowe z regresji liniowej. Jednostką `k₂` jest ms.
 
 ## 💧 Wyznaczanie kąta zwilżania
 
